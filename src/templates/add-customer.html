@@ -1,0 +1,138 @@
+<template>
+  <style>
+    .add-new-customer > div {
+      margin-top: 8px;
+      /* margin-bottom: 20px; */
+    }
+  </style>
+  <div class="add-new-customer">
+    <div id="tanant-name">
+      <div class="input-container">
+        <span class="universal-label big-label normal-color"
+          ><i style="color: red">*</i>Tanant Name</span
+        >
+        <input required class="form-input tanant-name" type="text" />
+      </div>
+      <div class="error-msg dis-hide"></div>
+    </div>
+    <div>
+      <div class="input-container">
+        <span class="universal-label big-label normal-color">Media Size</span>
+        <input class="form-input media-size" type="text" />
+      </div>
+    </div>
+    <div id="repository-type">
+      <div class="select-container">
+        <span class="universal-label big-label normal-color"
+          ><i style="color: red">*</i>Repository Type</span
+        >
+        <b class="select-icon"><i class="fa fa-caret-down"></i></b>
+        <div class="select-content repository-type"></div>
+        <ul class="select-panel dis-hide"></ul>
+      </div>
+      <div class="error-msg dis-hide"></div>
+    </div>
+    <div>
+      <div class="textarea-container">
+        <span class="universal-label big-label normal-color">Description</span>
+        <textarea
+          class="form-textarea description"
+          name=""
+          id=""
+          cols="30"
+          rows="10"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const inputs = document.querySelectorAll(".add-new-customer input");
+      const textarea = document.querySelector(".add-new-customer textarea");
+      const selectContainers = document.querySelectorAll(
+        ".add-new-customer .select-container"
+      );
+      const repositoryTypeSelectContainer = document.querySelector(
+        "#repository-type .select-container"
+      );
+      const submitBtn = document.querySelector(".confirm");
+      const selectData = [
+        { id: "s1", value: "AMAZON_S1" },
+        { id: "s2", value: "AMAZON_S2" },
+        { id: "s3", value: "AMAZON_S3" }
+      ];
+      handleInput();
+      handleTextarea();
+      handleSelect(repositoryTypeSelectContainer, selectData);
+
+      submitBtn.addEventListener("click", function() {
+        const isInputValid = [...inputs].every(input => input.validity.valid);
+        const isSelectValid = [...selectContainers].every(
+          selectContainer =>
+            selectContainer.querySelector(".select-content").textContent
+        );
+        if (isInputValid && isSelectValid) {
+          destoyModal();
+        } else {
+          // input validation
+          [...inputs].forEach(input => {
+            if (!input.validity.valid) {
+              const previousEl = input.previousElementSibling;
+              const missingText =
+                previousEl && previousEl.textContent.slice(1).toLowerCase();
+              const errorMsg = input.parentElement.nextElementSibling;
+              errorMsg.textContent = `Please input ${missingText}`;
+
+              handleErrorInputStatus(
+                input.parentElement,
+                "input-container",
+                input.previousElementSibling,
+                input.parentElement.nextElementSibling
+              );
+              input.addEventListener("focus", function() {
+                handleRightInputStatus(
+                  input.parentElement,
+                  "input-container",
+                  input.previousElementSibling,
+                  input.parentElement.nextElementSibling
+                );
+              });
+            }
+          });
+
+          // select validation
+          [...selectContainers].forEach(selectContainer => {
+            const value = selectContainer.querySelector(".select-content")
+              .textContent;
+            if (!value) {
+              const previousEl = selectContainer.firstElementChild;
+              const missingText =
+                previousEl && previousEl.textContent.slice(1).toLowerCase();
+              const errorMsg = selectContainer.parentElement.lastElementChild;
+              errorMsg.textContent = `Please select ${missingText}`;
+
+              handleErrorInputStatus(
+                selectContainer,
+                "select-container",
+                selectContainer.firstElementChild,
+                selectContainer.parentElement.lastElementChild
+              );
+
+              selectContainer
+                .querySelector(".select-panel")
+                .addEventListener("click", function() {
+                  handleRightInputStatus(
+                    selectContainer,
+                    "select-container",
+                    selectContainer.firstElementChild,
+                    selectContainer.parentElement.lastElementChild
+                  );
+                });
+            }
+          });
+        }
+      });
+    })();
+  </script>
+</template>

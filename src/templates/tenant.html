@@ -1,0 +1,277 @@
+<template>
+  <div class="container">
+    <!-- <div class="search-container">
+      <div>
+        <div class="input-container">
+          <span class="universal-label big-label normal-color"
+            >Tanant Name</span
+          >
+          <input class="form-input" type="text" />
+        </div>
+      </div>
+      <div>
+        <div class="input-container">
+          <span class="universal-label big-label normal-color">Customer</span>
+          <input class="form-input" type="text" />
+        </div>
+      </div>
+      <div>
+        <div class="input-container">
+          <span class="universal-label big-label normal-color">Plant</span>
+          <input class="form-input" type="text" />
+        </div>
+      </div>
+      <div>
+        <div class="search-btn">
+          <button><span class="fa fa-search"></span></button>
+        </div>
+      </div>
+      <div></div>
+    </div> -->
+    <search-group
+      onSearch="searchTenant"
+      inputLabels="Tenant Name, Customer, Plant"
+    ></search-group>
+    <div class="operation-container">
+      <span>
+        <span class="fa fa-plus"></span>
+      </span>
+      <button class="add-customer-btn">Customer</button>
+      <button class="add-plant-btn">Plant</button>
+      <button class="add-site-btn">Site</button>
+    </div>
+    <ul class="universal-table">
+      <li
+        style="grid-template-columns: 80px repeat(9, 1fr)"
+        class="table-header"
+      >
+        <div>Tenant Key</div>
+        <div>Tenant Name</div>
+        <div>Tenant Type</div>
+        <div>Customer</div>
+        <div>Plant</div>
+        <div>Repository Type</div>
+        <div>Media Size(M)</div>
+        <div>Description</div>
+        <div>Status</div>
+        <div>Operation</div>
+      </li>
+      <div class="table-content"></div>
+    </ul>
+    <app-pagination></app-pagination>
+  </div>
+
+  <script>
+    (function() {
+      handleInput();
+
+      // table container
+      const tableContainer = document.querySelector(".universal-table");
+      const tableContent = document.querySelector(".table-content");
+      // operation button
+      const addCustomerBtn = document.querySelector(".add-customer-btn");
+      const addPlantBtn = document.querySelector(".add-plant-btn");
+      const addSiteBtn = document.querySelector(".add-site-btn");
+      // pagination
+      const pagination = document.querySelector("app-pagination");
+      // select data
+      const tanantTypeJSON = {
+        1: "customer",
+        2: "plant",
+        3: "site"
+      };
+      const repositoryTypeJSON = {
+        s1: "AMAZON_S1",
+        s2: "AMAZON_S2",
+        s3: "AMAZON_S3"
+      };
+      const statusJSON = {
+        1: "Active",
+        0: "InActive"
+      };
+      // add table
+      const customerListData = res.data;
+      const frag = document.createRange();
+      window.createTanantTable = function(data) {
+        let tbody = "";
+        tableContent.innerHTML = "";
+        for (let item of data) {
+          tbody += `
+            <li style='grid-template-columns: 80px repeat(9, 1fr)' class='table-body'>
+              <div data-type='input'>${item.tanant_id}</div>
+              <div data-type='input'>${item.tanant_name}</div>
+              <div data-type='select' data-real-value=${
+                item.tanant_type
+              }>${tanantTypeJSON[item.tanant_type] || ""}</div>
+              <div data-type='input'>${item.customer}</div>
+              <div data-type='input'>${item.plant}</div>
+              <div data-type='select' data-real-value=${
+                item.repository
+              }>${repositoryTypeJSON[item.repository] || ""}</div>
+              <div data-type='input'>${item.media_size}</div>
+              <div data-type='textarea'>${item.description}</div>
+              <div data-type='select' data-real-value=${
+                item.status
+              }>${statusJSON[item.status] || ""}</div>
+              <div class='actions'><a class='edit'>Edit</a><a class='delete'>Delete</a></div>
+            </li>
+            `;
+        }
+        const tbodyFragment = frag.createContextualFragment(tbody);
+        tableContent.appendChild(tbodyFragment);
+      };
+      const tableWrapper = document.querySelector(".universal-table");
+
+      window.getCurrentData = function(currentIndex, endIndex) {
+        return customerListData.slice(currentIndex, endIndex);
+      };
+
+      // add customer
+      addCustomerBtn.addEventListener("click", function(e) {
+        e.target.setAttribute("class", "active-btn");
+        showModal({
+          headerName: "Add Customer",
+          template: "/src/templates/add-customer.html",
+          onClose: function() {
+            addCustomerBtn.setAttribute("class", "");
+          }
+        });
+      });
+
+      // add plant
+      addPlantBtn.addEventListener("click", function(e) {
+        e.target.setAttribute("class", "active-btn");
+        showModal({
+          headerName: "Add Plant",
+          template: "/src/templates/add-plant.html",
+          onClose: function() {
+            addPlantBtn.setAttribute("class", "");
+          }
+        });
+      });
+
+      // add site
+      addSiteBtn.addEventListener("click", function(e) {
+        e.target.setAttribute("class", "active-btn");
+        showModal({
+          headerName: "Add Plant",
+          template: "/src/templates/add-site.html",
+          onClose: function() {
+            addSiteBtn.setAttribute("class", "");
+          }
+        });
+      });
+
+      // edit tenant
+      tableWrapper.addEventListener("click", function(e) {
+        const target = e.target;
+        const tableBody = findAncestor(target, "table-body");
+        if (tableBody) {
+          if (target.tagName === "A") {
+            const isEdit = target.classList.contains("edit");
+            if (isEdit) {
+              const customerInputItems = tableBody.querySelectorAll(
+                "[data-type=input]"
+              );
+              const customerSelectItems = tableBody.querySelectorAll(
+                "[data-type=select]"
+              );
+              const customerTextareaItems = tableBody.querySelectorAll(
+                "[data-type=textarea]"
+              );
+              showModal({
+                headerName: "Edit Customer",
+                template: "src/templates/edit-tenant.html"
+              });
+              setTimeout(_ => {
+                const inputs = document.querySelectorAll(".edit-tanant input");
+                const selects = document.querySelectorAll(
+                  ".edit-tanant .select-container .select-content"
+                );
+                const textareas = document.querySelectorAll(
+                  ".edit-tanant textarea"
+                );
+                [...inputs].forEach((input, idx) => {
+                  input.value = customerInputItems[idx].textContent;
+                  if (input.value.trim()) {
+                    handleRightInputStatus(
+                      input.parentElement,
+                      "input-container",
+                      input.previousElementSibling
+                    );
+                  }
+                });
+
+                [...selects].forEach((select, idx) => {
+                  select.textContent = customerSelectItems[idx].textContent;
+
+                  select.setAttribute(
+                    "data-real-value",
+                    customerSelectItems[idx].getAttribute("data-real-value")
+                  );
+                  if (select.textContent.trim()) {
+                    handleRightInputStatus(
+                      select.parentElement,
+                      "select-container",
+                      select.parentElement.firstElementChild
+                    );
+                  }
+                });
+
+                [...textareas].forEach((textarea, idx) => {
+                  textarea.value = customerTextareaItems[idx].textContent;
+                  if (textarea.value.trim()) {
+                    handleRightInputStatus(
+                      textarea.parentElement,
+                      "textarea-container",
+                      textarea.previousElementSibling
+                    );
+                  }
+                });
+              }, 100);
+            } else {
+              showModal({
+                headerName: "Delete Customer",
+                template: "Are you sure to delete this customer?",
+                onConfirm: function() {
+                  tableWrapper.removeChild(tableBody);
+                  destoyModal();
+                }
+              });
+            }
+          }
+
+          // update user item styles
+          [...this.querySelectorAll(".table-body")].forEach(item => {
+            item.classList.remove("selected-item");
+          });
+          tableBody.classList.add("selected-item");
+        }
+        e.stopPropagation();
+      });
+
+      function onSelectPage(curPage) {
+        if (curPage) {
+          const curIdx = (curPage - 1) * itemNumPerPage;
+          createTanantTable(getCurrentData(curIdx, curPage * itemNumPerPage));
+        }
+      }
+
+      // initialize pagination
+      const dataLen = customerListData.length;
+      const totalPages = Math.ceil(dataLen / itemNumPerPage);
+      pagination.setAttribute("pageTotalNum", totalPages);
+      pagination.setAttribute("onSelect", onSelectPage);
+      createTanantTable(getCurrentData(0, itemNumPerPage));
+
+      // search button
+      window.searchTenant = function(data) {
+        console.log(data);
+
+        // fake request
+
+        setTimeout(_ => {}, 1000);
+      };
+    })();
+  </script>
+</template>

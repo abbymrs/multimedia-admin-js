@@ -1,0 +1,36 @@
+.user-container .action-section {
+  background-color: #fff;
+  padding: 5px 10px;
+}
+.user-container .action-section .add-user-btn {
+  margin-left: 4px;
+  background-color: #bcbcbc;
+  color: #fff;
+}
+.user-container .action-section .add-user-btn.active-btn,
+.user-container .action-section .add-user-btn:hover {
+  background-color: #ff004e;
+}
+.user-container .user-table {
+  margin-bottom: 10px;
+}
+.user-container .user-table li {
+  display: grid;
+  grid-template-columns: 50px repeat(6, 1fr) 200px;
+  grid-column-gap: 5px;
+  word-break: break-word;
+  background-color: #fff;
+  padding: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+.user-container .user-table li.selected-user,
+.user-container .user-table li:not(.table-header):hover {
+  background-color: #ffcfd6;
+}
+.user-container .user-table .actions a:hover {
+  color: #ff004e;
+}
+.user-container .user-table .actions .delete {
+  margin: 0 5px;
+}

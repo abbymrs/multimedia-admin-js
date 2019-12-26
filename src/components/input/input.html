@@ -1,0 +1,90 @@
+<template>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    input {
+      position: relative;
+      display: inline-block;
+      padding: 0 7px;
+      width: 100%;
+      height: 35px;
+      cursor: text;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.65);
+      background-color: #fff;
+      background-image: none;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+
+    input:hover {
+      border-color: #49a9ee;
+    }
+
+    input:focus {
+      outline: 0;
+      box-shadow: 0 0 0 1px rgba(16, 142, 233, 0.2);
+      padding-bottom: 0;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+    span.floating-label-top {
+      /* top: 0;
+      left: 7px;
+      font-size: 12px; */
+
+      top: -17px;
+      left: 5px;
+    }
+
+    .floating-label {
+      position: absolute;
+      pointer-events: none;
+      left: 10px;
+      top: 10px;
+      transition: 0.2s ease all;
+      color: #999;
+    }
+  </style>
+  <div class="input-wrapper">
+    <input type="text" />
+    <span class="floating-label">input your text here</span>
+  </div>
+  <script>
+    (function() {
+      const inputWrapEl = document.querySelector("my-input");
+      const input = inputWrapEl.shadowRoot.querySelector("input");
+      const label = inputWrapEl.shadowRoot.querySelector(".floating-label");
+      const placeholder = inputWrapEl.getAttribute("placeholder");
+      const value = inputWrapEl.getAttribute("value");
+      const width = inputWrapEl.getAttribute("width");
+
+      if (placeholder) label.innerHTML = placeholder;
+      if (value) input.value = value;
+      if (width) input.style.width = width;
+
+      input.addEventListener(
+        "focus",
+        function(e) {
+          label.classList.add("floating-label-top");
+        },
+        false
+      );
+      input.addEventListener(
+        "blur",
+        function(e) {
+          if (!this.value.trim()) {
+            label.classList.remove("floating-label-top");
+          }
+        },
+        false
+      );
+    })();
+  </script>
+</template>

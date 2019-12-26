@@ -1,0 +1,229 @@
+<template>
+  <style>
+    .edit-tanant > div {
+      margin-top: 8px;
+      width: 360px;
+      /* margin-bottom: 20px; */
+      position: relative;
+    }
+    .input-mask {
+      position: absolute;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0.1);
+    }
+  </style>
+  <div class="edit-tanant">
+    <div>
+      <div class="input-container">
+        <span class="universal-label small-label normal-color"
+          ><i style="color: red">*</i>Tanant Key</span
+        >
+        <input required class="form-input" type="text" />
+        <div class="input-mask"></div>
+      </div>
+    </div>
+    <div>
+      <div class="input-container">
+        <span class="universal-label big-label normal-color"
+          ><i style="color: red">*</i>Tanant Name</span
+        >
+        <input required class="form-input" type="text" />
+        <div class="input-mask"></div>
+      </div>
+    </div>
+    <div id="tanant-type">
+      <div class="select-container">
+        <span class="universal-label big-label normal-color"
+          ><i style="color: red">*</i>Tanant Type</span
+        >
+        <b class="select-icon"><i class="fa fa-caret-down"></i></b>
+        <div class="select-content"></div>
+        <ul class="select-panel dis-hide"></ul>
+      </div>
+      <div class="input-mask"></div>
+    </div>
+    <div>
+      <div class="input-container">
+        <span class="universal-label big-label normal-color"
+          ><i style="color: red">*</i>Customer</span
+        >
+        <input required class="form-input" type="text" />
+        <div class="input-mask"></div>
+      </div>
+    </div>
+    <div>
+      <div class="input-container">
+        <span class="universal-label big-label normal-color"
+          ><i style="color: red">*</i>Plant</span
+        >
+        <input required class="form-input" type="text" />
+        <div class="input-mask"></div>
+      </div>
+    </div>
+    <div id="repository-type">
+      <div class="select-container">
+        <span class="universal-label big-label normal-color"
+          ><i style="color: red">*</i>Repository Type</span
+        >
+        <b class="select-icon"><i class="fa fa-caret-down"></i></b>
+        <div class="select-content"></div>
+        <ul class="select-panel dis-hide"></ul>
+      </div>
+    </div>
+    <div>
+      <div class="input-container">
+        <span class="universal-label big-label normal-color"
+          ><i style="color: red">*</i>Media Size</span
+        >
+        <input required class="form-input" type="text" />
+      </div>
+    </div>
+    <div>
+      <div class="textarea-container">
+        <span class="universal-label big-label normal-color">Description</span>
+        <textarea
+          class="form-textarea description"
+          name=""
+          id=""
+          cols="30"
+          rows="10"
+        ></textarea>
+      </div>
+    </div>
+    <div id="status">
+      <div class="select-container">
+        <span class="universal-label big-label normal-color"
+          ><i style="color: red">*</i>Status</span
+        >
+        <b class="select-icon"><i class="fa fa-caret-down"></i></b>
+        <div class="select-content"></div>
+        <ul class="select-panel dis-hide"></ul>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function() {
+      handleInput();
+      handleTextarea();
+      handleSelects();
+
+      // handle all selects
+      function handleSelects() {
+        const tanantTypeSelectContainer = document.querySelector(
+          "#tanant-type .select-container"
+        );
+        const repositoryTypeSelectContainer = document.querySelector(
+          "#repository-type .select-container"
+        );
+        const statusSelectContainer = document.querySelector(
+          "#status .select-container"
+        );
+        const tanantTypeData = [
+          { id: 1, value: "Customer" },
+          { id: 2, value: "Plant" },
+          { id: 3, value: "Site" }
+        ];
+        const repositoryTypeData = [
+          { id: "s1", value: "AMAZON_S1" },
+          { id: "s2", value: "AMAZON_S2" },
+          { id: "s3", value: "AMAZON_S3" }
+        ];
+        const statusData = [
+          { id: 1, value: "Active" },
+          { id: 0, value: "InActive" }
+        ];
+        handleSelect(tanantTypeSelectContainer, tanantTypeData);
+        handleSelect(repositoryTypeSelectContainer, repositoryTypeData);
+        handleSelect(statusSelectContainer, statusData);
+      }
+
+      // handle submit
+      const submitBtn = document.querySelector(" .confirm");
+      submitBtn.addEventListener("click", function() {
+        // get form items
+        const inputs = document.querySelectorAll(".edit-tanant input");
+        const textarea = document.querySelector(".edit-tanant textarea");
+        const selectContainers = document.querySelectorAll(
+          ".edit-tanant .select-container"
+        );
+        // check validations
+        const isInputValid = [...inputs].every(input => input.validity.valid);
+        const isSelectValid = [...selectContainers].every(
+          selectContainer =>
+            selectContainer.querySelector(".select-content").textContent
+        );
+
+        if (isInputValid && isSelectValid) {
+          destoyModal();
+        } else {
+          // invalid state of input
+          [...inputs].forEach(input => {
+            if (!input.validity.valid) {
+              // create error messages
+              const previousEl = input.previousElementSibling;
+              const missingText =
+                previousEl && previousEl.textContent.slice(1).toLowerCase();
+              const errorDom = document.createElement("div");
+              errorDom.textContent = `Please input ${missingText}`;
+              errorDom.setAttribute("class", "error-msg dis-hide");
+              input.parentElement.parentElement.appendChild(errorDom);
+              // show invalid state
+              handleErrorInputStatus(
+                input.parentElement,
+                "input-container",
+                input.previousElementSibling,
+                input.parentElement.nextElementSibling
+              );
+              // listen to focus event
+              input.addEventListener("focus", function() {
+                handleRightInputStatus(
+                  input.parentElement,
+                  "input-container",
+                  input.previousElementSibling,
+                  input.parentElement.nextElementSibling
+                );
+              });
+            }
+          });
+
+          // invalid state of select
+          [...selectContainers].forEach(selectContainer => {
+            const value = selectContainer.querySelector(".select-content")
+              .textContent;
+            if (!value) {
+              const previousEl = selectContainer.firstElementChild;
+              const missingText =
+                previousEl && previousEl.textContent.slice(1).toLowerCase();
+              const errorDom = document.createElement("div");
+              errorDom.textContent = `Please select ${missingText}`;
+              errorDom.setAttribute("class", "error-msg dis-hide");
+              selectContainer.appendChild(errorDom);
+
+              handleErrorInputStatus(
+                selectContainer,
+                "select-container",
+                selectContainer.firstElementChild,
+                selectContainer.parentElement.lastElementChild
+              );
+
+              selectContainer
+                .querySelector(".select-panel")
+                .addEventListener("click", function() {
+                  handleRightInputStatus(
+                    selectContainer,
+                    "select-container",
+                    selectContainer.firstElementChild,
+                    selectContainer.parentElement.lastElementChild
+                  );
+                });
+            }
+          });
+        }
+      });
+    })();
+  </script>
+</template>

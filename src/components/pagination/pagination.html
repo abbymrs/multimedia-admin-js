@@ -1,0 +1,232 @@
+<template class="pagination-template">
+  <style>
+    #pagination {
+      display: inline-block;
+      vertical-align: middle;
+      padding: 1px 2px 4px 2px;
+      position: absolute;
+      bottom: 14px;
+      right: 0px;
+    }
+    #pagination a,
+    #pagination i {
+      font-size: 12px;
+      display: inline-block;
+      vertical-align: middle;
+      text-align: center;
+      user-select: none;
+    }
+
+    #pagination a {
+      margin: 0 3px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      font-size: 13px;
+      line-height: 32px;
+      color: #666;
+      background: #fff;
+    }
+    #pagination i {
+      margin: 0 3px;
+    }
+    #pagination a.prev,
+    #pagination a.next {
+      color: #8a8a8a;
+    }
+    #pagination a.current,
+    #pagination a:hover {
+      background: #fa5154;
+      border: 1px solid transparent;
+      color: #fff;
+      transition: linear all 0.2s;
+    }
+  </style>
+  <div id="pagination"></div>
+
+  <script>
+    (function() {
+      /* * * * * * * * * * * * * * * * *
+       * Pagination
+       * javascript page navigation
+       * * * * * * * * * * * * * * * * */
+
+      var Pagination = {
+        code: "",
+
+        // --------------------
+        // Utility
+        // --------------------
+
+        // converting initialize data
+        Extend: function(data) {
+          data = data || {};
+          Pagination.size = data.size || 1;
+          Pagination.page = data.page || 1;
+          Pagination.step = data.step || 3;
+        },
+
+        // add pages by number (from [s] to [f])
+        Add: function(s, f) {
+          for (var i = s; i < f; i++) {
+            Pagination.code += "<a>" + i + "</a>";
+          }
+        },
+
+        // add last page with separator
+        Last: function() {
+          Pagination.code += "<i>...</i><a>" + Pagination.size + "</a>";
+        },
+
+        // add first page with separator
+        First: function() {
+          Pagination.code += "<a>1</a><i>...</i>";
+        },
+
+        // --------------------
+        // Handlers
+        // --------------------
+
+        // change page
+        Click: function() {
+          Pagination.page = +this.innerHTML;
+          Pagination.Start();
+          Pagination.onSelect && Pagination.onSelect(Pagination.page);
+        },
+
+        // previous page
+        Prev: function() {
+          Pagination.page--;
+          if (Pagination.page < 1) {
+            Pagination.page = 1;
+          }
+          Pagination.Start();
+          Pagination.onSelect && Pagination.onSelect(Pagination.page);
+        },
+
+        // next page
+        Next: function() {
+          Pagination.page++;
+          if (Pagination.page > Pagination.size) {
+            Pagination.page = Pagination.size;
+          }
+          Pagination.Start();
+          Pagination.onSelect && Pagination.onSelect(Pagination.page);
+        },
+
+        // --------------------
+        // Script
+        // --------------------
+
+        // binding pages
+        Bind: function() {
+          var a = Pagination.e.getElementsByTagName("a");
+          for (var i = 0; i < a.length; i++) {
+            if (+a[i].innerHTML === Pagination.page) a[i].className = "current";
+            a[i].addEventListener("click", Pagination.Click, false);
+          }
+        },
+
+        // write pagination
+        Finish: function() {
+          Pagination.e.innerHTML = Pagination.code;
+          Pagination.code = "";
+          Pagination.Bind();
+        },
+
+        // find pagination type
+        Start: function() {
+          if (Pagination.size < Pagination.step * 2 + 6) {
+            Pagination.Add(1, Pagination.size + 1);
+          } else if (Pagination.page < Pagination.step * 2 + 1) {
+            Pagination.Add(1, Pagination.step * 2 + 4);
+            Pagination.Last();
+          } else if (Pagination.page > Pagination.size - Pagination.step * 2) {
+            Pagination.First();
+            Pagination.Add(
+              Pagination.size - Pagination.step * 2 - 2,
+              Pagination.size + 1
+            );
+          } else {
+            Pagination.First();
+            Pagination.Add(
+              Pagination.page - Pagination.step,
+              Pagination.page + Pagination.step + 1
+            );
+            Pagination.Last();
+          }
+          Pagination.Finish();
+        },
+
+        // --------------------
+        // Initialization
+        // --------------------
+
+        // binding buttons
+        Buttons: function(e) {
+          var nav = e.getElementsByTagName("a");
+          nav[0].addEventListener("click", Pagination.Prev, false);
+          nav[1].addEventListener("click", Pagination.Next, false);
+        },
+
+        // create skeleton
+        Create: function(e) {
+          var html = [
+            "<a class='prev'><</a>", // previous button
+            "<span></span>", // pagination container
+            "<a class='next'>></a>" // next button
+          ];
+
+          e.innerHTML = html.join("");
+          Pagination.e = e.getElementsByTagName("span")[0];
+          Pagination.Buttons(e);
+        },
+
+        // init
+        Init: function(e, data) {
+          Pagination.Extend(data);
+          Pagination.Create(e);
+          Pagination.Start();
+        },
+        // update
+        Update: function(e, data) {
+          Pagination.Init(e, data);
+        }
+      };
+
+      /* * * * * * * * * * * * * * * * *
+       * Initialization
+       * * * * * * * * * * * * * * * * */
+
+      const init = function() {
+        const paginationEl = document.querySelector("app-pagination");
+        const totalPageNum = +paginationEl.getAttribute("pageTotalNum");
+        const selectedPage = +paginationEl.getAttribute("selectedPage");
+        let onSelect = paginationEl.getAttribute("onSelect");
+        console.log(onSelect);
+        if (onSelect) {
+          onSelect = new Function("return " + onSelect)();
+
+          if (typeof onSelect === "function") {
+            Pagination.onSelect = onSelect;
+          }
+        }
+
+        const paginationRealDom = paginationEl.shadowRoot.querySelector(
+          "#pagination"
+        );
+
+        Pagination.Init(paginationRealDom, {
+          size: totalPageNum, // pages size
+          page: selectedPage || 1, // selected page
+          step: 3 // pages before and after current
+        });
+      };
+
+      window.pagination = Pagination;
+
+      init();
+    })();
+  </script>
+</template>

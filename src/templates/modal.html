@@ -1,0 +1,117 @@
+<template>
+  <style>
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1000;
+    }
+
+    .modal .mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+    .modal .content {
+      background-color: #f4f6fc;
+      /* padding: 20px; */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 100;
+      max-width: 50vw;
+      max-height: 95vh;
+      width: 400px;
+      overflow-y: auto;
+    }
+    .modal .content .header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #a5a5a5;
+      color: #fff;
+      /* padding: 5px 0; */
+      height: 32px;
+      line-height: 32px;
+    }
+    .modal .content .header .close-icon {
+      position: absolute;
+      right: 10px;
+      top: 8px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 16px;
+      /* background: url(src/icons/close.svg) no-repeat 0 0/20px 20px; */
+    }
+    .modal .content .header h5 {
+      margin-left: 10px;
+      font-size: 16px;
+      color: #fff;
+    }
+    .modal .content .content-body {
+      /* text-align: center; */
+      /* margin-top: 26px; */
+      padding: 52px 20px 0 20px;
+    }
+    .modal .content .action {
+      /* margin-top: 16px; */
+      padding: 16px 0 26px 0;
+      text-align: center;
+    }
+    .modal .content .action > button {
+      width: 164px;
+      height: 46px;
+      background: #e3e3e3;
+      border: 1px solid #fff;
+      color: #fff;
+      font-size: 20px;
+    }
+    .modal .content .action > button.confirm {
+      margin-right: 20px;
+      background: #00adef;
+    }
+    .modal .content .action > button.cancel {
+      background: #a8aab7;
+    }
+  </style>
+
+  <div class="modal">
+    <div class="content">
+      <div class="header d-flex">
+        <h5 class="modal-header">Add Customer</h5>
+        <i class="close-icon fas fa-times"></i>
+      </div>
+      <div class="content-body">test</div>
+      <div class="action">
+        <button class="confirm default">Save</button>
+        <button class="cancel default">Cancel</button>
+      </div>
+    </div>
+    <div class="mask"></div>
+  </div>
+
+  <script>
+    function loadModalContent(url, callback) {
+      const contentBody = document.querySelector(".content-body");
+      if (!url || !url.trim()) return;
+
+      if (url.indexOf(".html") > -1) {
+        loadComponent(url).then(dom => {
+          contentBody.innerHTML = "";
+          contentBody.appendChild(dom);
+          callback();
+        });
+      } else {
+        contentBody.innerHTML = url;
+        callback();
+      }
+    }
+  </script>
+</template>

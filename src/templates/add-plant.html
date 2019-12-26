@@ -1,0 +1,86 @@
+<template>
+  <style>
+    .add-plant > div {
+      margin-top: 8px;
+      margin-bottom: 20px;
+    }
+  </style>
+  <div class="add-plant">
+    <div id="customer">
+      <div class="select-container">
+        <span class="universal-label big-label normal-color">Customer</span>
+        <b class="select-icon"><i class="fa fa-caret-down"></i></b>
+        <div class="select-content repository-type"></div>
+        <ul class="select-panel dis-hide"></ul>
+      </div>
+    </div>
+    <div>
+      <div class="input-container">
+        <span class="universal-label big-label normal-color">Tanant Name</span>
+        <input required class="form-input tanant-name" type="text" />
+      </div>
+    </div>
+    <div>
+      <div class="input-container">
+        <span class="universal-label big-label normal-color">Media Size</span>
+        <input required class="form-input tanant-name" type="text" />
+      </div>
+    </div>
+    <div id="repository-type">
+      <div class="select-container">
+        <span class="universal-label big-label normal-color"
+          >Repository Type</span
+        >
+        <b class="select-icon"><i class="fa fa-caret-down"></i></b>
+        <div class="select-content repository-type"></div>
+        <ul class="select-panel dis-hide"></ul>
+      </div>
+    </div>
+    <div>
+      <div class="textarea-container">
+        <span class="universal-label big-label normal-color">Description</span>
+        <textarea
+          class="form-textarea description"
+          name=""
+          id=""
+          cols="30"
+          rows="10"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function() {
+      handleInput();
+      handleTextarea();
+      handleSelects();
+
+      function handleSelects() {
+        const customerSelectContainer = document.querySelector(
+          "#customer .select-container"
+        );
+        const repositoryTypeSelectContainer = document.querySelector(
+          "#repository-type .select-container"
+        );
+        const customerData = [
+          { id: 1, value: "Samn" },
+          { id: 2, value: "Samn1" },
+          { id: 3, value: "42Q" }
+        ];
+        const repositoryTypeData = [
+          { id: "s1", value: "AMAZON_S1" },
+          { id: "s2", value: "AMAZON_S2" },
+          { id: "s3", value: "AMAZON_S3" }
+        ];
+        handleSelect(customerSelectContainer, customerData);
+        handleSelect(repositoryTypeSelectContainer, repositoryTypeData);
+      }
+
+      // handle submit
+      const submitBtn = document.querySelector(" .confirm");
+      submitBtn.addEventListener("click", function() {
+        destoyModal();
+      });
+    })();
+  </script>
+</template>

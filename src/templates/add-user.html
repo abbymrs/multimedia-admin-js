@@ -1,0 +1,200 @@
+<template>
+  <style>
+    .add-user-form .input-container {
+      margin-bottom: 10px;
+    }
+  </style>
+  <div class="add-user-form">
+    <div class="input-container">
+      <span class="universal-label big-label normal-color"
+        ><i class="red">*</i>User Name</span
+      >
+      <input required class="form-input user-name" type="text" />
+    </div>
+    <div class="input-container">
+      <span class="universal-label big-label normal-color"
+        ><i class="red">*</i>Password</span
+      >
+      <input required class="form-input password" type="password" />
+    </div>
+    <div class="input-container">
+      <span class="universal-label big-label normal-color"
+        ><i class="red">*</i>Confirm Password</span
+      >
+      <input required class="form-input confirm-password" type="password" />
+    </div>
+    <div class="input-container">
+      <span class="universal-label big-label normal-color"
+        ><i class="red">*</i>Email</span
+      >
+      <input required class="form-input email" type="email" />
+    </div>
+    <div class="input-container">
+      <span class="universal-label big-label normal-color">First Name</span>
+      <input class="form-input first-name" type="text" />
+    </div>
+    <div class="input-container">
+      <span class="universal-label big-label normal-color">Last Name</span>
+      <input class="form-input last-name" type="text" />
+    </div>
+    <div class="input-container">
+      <span class="universal-label big-label normal-color">Department</span>
+      <input class="form-input department" type="text" />
+    </div>
+    <div class="textarea-container">
+      <span class="universal-label big-label normal-color">Remarks</span>
+      <textarea
+        class="form-textarea remarks"
+        name=""
+        cols="30"
+        rows="10"
+      ></textarea>
+    </div>
+  </div>
+  <script>
+    (function() {
+      handleInput();
+      handleTextarea();
+
+      const submitBtn = document.querySelector(".confirm");
+      const pwd = document.querySelector(".password");
+      const confirmPwd = document.querySelector(".confirm-password");
+
+      // validate password is matched or not
+      confirmPwd.addEventListener("blur", function() {
+        const inputContainer = this.parentElement;
+
+        if (pwd.value.trim() !== this.value.trim()) {
+          generateErrMsg(
+            inputContainer,
+            this,
+            "your password is not matchable!"
+          );
+          inputContainer.style.marginBottom = "30px";
+        }
+      });
+
+      confirmPwd.addEventListener("focus", function() {
+        const inputContainer = this.parentElement;
+        const error = inputContainer.querySelector(".error");
+        if (error) inputContainer.removeChild(error);
+        inputContainer.style.marginBottom = "10px";
+      });
+
+      submitBtn.addEventListener("click", function() {
+        const inputs = [...document.querySelectorAll("input")];
+        const remarks = document.querySelector("textarea");
+        const isValid = [...inputs].every(input => input.validity.valid);
+
+        if (isValid) {
+          // build request payload
+          let resBody = {};
+
+          inputs.forEach(input => {
+            const className = input.classList[1];
+            const inputClassName = formatClassName(className);
+
+            if (inputClassName === "confirmPassword") return;
+            const val = input.value.trim();
+            resBody[inputClassName] = val === "-" || !val ? "" : val;
+          });
+
+          const remarkVal = remarks.value.trim();
+          resBody.remarks = remarkVal === "-" || !remarkVal ? "" : remarkVal;
+
+          if (window.isEditUser) {
+            resBody.id = Number(window.currentUserId);
+            editUser(resBody);
+          } else {
+            resBody.id = 1;
+            addUser(res, resBody);
+          }
+          destoyModal();
+        } else {
+          inputs.forEach(input => {
+            if (!input.validity.valid) {
+              const previousEl = input.previousElementSibling;
+              const missingText = previousEl
+                ? "Please input " +
+                  previousEl.textContent.slice(1).toLowerCase()
+                : "";
+              const inputContainer = input.parentElement;
+
+              if (inputContainer) {
+                const hasError = inputContainer.classList.contains(
+                  "input-container-error"
+                );
+                if (hasError) return;
+                inputContainer.classList.add("input-container-error");
+
+                generateErrMsg(inputContainer, input, missingText);
+              }
+
+              input.addEventListener("focus", function() {
+                const error = this.parentElement.querySelector(".error");
+                inputContainer.classList.remove("input-container-error");
+                error && inputContainer.removeChild(error);
+              });
+            }
+          });
+        }
+      });
+
+      // add error message for invalid input fields
+      function generateErrMsg(inputContainer, input, missingText) {
+        const errorDom = document.createElement("div");
+        const label = input.previousElementSibling;
+
+        if (input.type === "email" && input.validity.typeMismatch) {
+          errorDom.textContent = `Please input correct email format`;
+        } else {
+          errorDom.textContent = missingText;
+        }
+        errorDom.classList.add("error", "margin-top5");
+        label.classList.remove("big-label");
+        label.classList.add("small-label", "error");
+        inputContainer.appendChild(errorDom);
+      }
+
+      function addUser(res, resBody) {
+        axios
+          .post(`${baseUrl}user/addUser`, resBody)
+          .then(res => {
+            const code = res.data.code;
+            if (code === 0) {
+              userListData.unshift(resBody);
+            }
+            showNotification(res.data.msg);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+
+      function editUser(resBody) {
+        delete resBody.password;
+        axios
+          .put(`${baseUrl}user/editUserInfo`, resBody)
+          .then(res => {
+            const data = res.data;
+            let message = data.msg;
+
+            if (data.code === 0) {
+              const idx = window.userListData.findIndex(
+                user => user.userName === resBody.userName
+              );
+              if (idx !== -1) {
+                window.userListData.splice(idx, 1);
+              }
+              userListData.unshift(resBody);
+            }
+
+            showNotification(message);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+    })();
+  </script>
+</template>

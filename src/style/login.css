@@ -1,0 +1,70 @@
+#container {
+  height: 100%;
+  background-image: url("../assets/images/login_bg.png");
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+}
+#container .main-content {
+  width: 450px;
+}
+#container .main-content header {
+  display: flex;
+  margin-bottom: 60px;
+}
+#container .main-content header img {
+  height: 80px;
+}
+#container .main-content header .split {
+  width: 8px;
+  height: 80px;
+  background: #f00;
+  margin: 0 35px;
+}
+#container .main-content header h1 {
+  display: flex;
+  flex-direction: column;
+}
+#container .main-content header h1 span:first-child {
+  font-size: 32px;
+  line-height: 40px;
+}
+#container .main-content header h1 span:last-child {
+  font-size: 22px;
+  line-height: 40px;
+  font-weight: 200;
+}
+#container .main-content form {
+  margin-bottom: 12px;
+}
+#container .main-content form .form-group {
+  margin-bottom: 50px;
+}
+#container .main-content form .form-group.error-account .red {
+  margin-top: 10px;
+}
+#container .main-content form input {
+  width: 450px;
+  background: #e3e3e3;
+  height: 52px;
+  border: none;
+  outline: none;
+  padding: 0 40px;
+}
+#container .main-content div.btn-container {
+  display: flex;
+  justify-content: space-between;
+}
+#container .main-content div.btn-container button {
+  height: 48px;
+  border-radius: 24px;
+}
+#container .main-content div.btn-container .sign-in-btn {
+  border: 1px solid green;
+  width: 284px;
+}
+#container .main-content div.btn-container .cancel-btn {
+  border: 1px solid #ccc;
+  width: 148px;
+}

@@ -1,0 +1,292 @@
+<template>
+  <div class="user-container">
+    <search-group
+      onSearch="searchUser"
+      inputLabels="User Name, First Name, Last Name"
+    ></search-group>
+    <div class="action-section align-vertical">
+      <span class="fa fa-plus plus-btn"></span>
+      <button class="add-user-btn">User</button>
+    </div>
+    <ul class="user-table"></ul>
+    <app-pagination></app-pagination>
+  </div>
+
+  <script>
+    (function() {
+      window.searchUser = function(data) {
+        console.log(data);
+
+        // fake request
+
+        setTimeout(_ => {}, 1000);
+      };
+
+      window.createUserTable = function(data) {
+        const tableWrapper = document.querySelector(".user-table");
+        let tableContentHtml = `
+              <li class="table-header">
+                <div>ID</div>
+                <div>User Name</div>
+                <div>Email</div>
+                <div>First Name</div>
+                <div>Last Name</div>
+                <div>Department</div>
+                <div>Remark</div>
+                <div class="actions">Operation</div>
+              </li>
+            `;
+
+        for (let i = 0; i < data.length; i++) {
+          const user = data[i];
+          const userName = user.userName || "-";
+          const email = user.email || "-";
+          const firstName = user.firstName || "-";
+          const lastName = user.lastName || "-";
+          const department = user.department || "-";
+          const remarks = user.remarks || "-";
+          tableContentHtml += `
+              <li class="table-item">
+                <div class="id">${user.id}</div>
+                <div class="username">${userName}</div>
+                <div class="email">${email}</div>
+                <div class="firstName">${firstName}</div>
+                <div class="lastName">${lastName}</div>
+                <div class="department">${department}</div>
+                <div class="remarks">${remarks}</div>
+                <div class="actions d-flex">
+                  <a href="javascript:;" class="edit">Edit</a>
+                  <a href="javascript:;" class="delete">Delete</a>
+                  <a href="javascript:;" class="change-password">Change Password</a>
+                </div>
+              </li>
+            `;
+        }
+        tableWrapper.innerHTML = tableContentHtml;
+      };
+
+      window.getCurrentData = function(data, currentIndex, endIndex) {
+        return data.map((item, idx) => {
+          item.id = idx + currentIndex;
+          return item;
+        });
+      };
+
+      const tableWrapper = document.querySelector(".user-table");
+      const userContainer = document.querySelector(".user-container");
+      let userDataSizes = 0;
+
+      axios
+        .get(
+          `${baseUrl}user/queryUserByCondition?userName=&firstName=&lastName=&pageSize=${itemNumPerPage}&currentPage=1`
+        )
+        .then(res => {
+          // rebuild data format
+          window.userListData = res.data.userList.map((item, idx) => {
+            item.id = idx + 1;
+            delete item.password;
+            return item;
+          });
+          userDataSizes = res.data.totalNumber;
+
+          const observableUserList = new ArrayObserver(window.userListData);
+          observableUserList.observe((data, action) => {
+            if (window.isEditUser) {
+              if (!action) {
+                const editingUser = document.querySelector(
+                  ".user-table .table-item.selected-user"
+                );
+
+                const tableItems = [
+                  ...editingUser.querySelectorAll("div:not(.actions)")
+                ];
+                tableItems.forEach(item => {
+                  const className = item.classList[0];
+                  for (let prop in data) {
+                    if (prop === className) {
+                      item.textContent = data[prop];
+                    }
+                  }
+                });
+              }
+            } else {
+              // add user
+              userListData.forEach((item, idx) => {
+                item.id = idx + 1;
+              });
+              createUserTable(userListData);
+              updatePagination(++userDataSizes);
+            }
+          });
+
+          // initialize pagination
+          const totalPages = Math.ceil(userDataSizes / itemNumPerPage);
+          const pagination = document.querySelector("app-pagination");
+          pagination.setAttribute("onSelect", onSelectPage);
+          updatePagination(userDataSizes);
+
+          createUserTable(getCurrentData(userListData, 1));
+        })
+        .catch(err => {
+          console.log(err);
+        });
+
+      const addUserBtn = document.querySelector(".add-user-btn");
+      addUserBtn.addEventListener("click", addUser);
+
+      function addUser() {
+        window.isEditUser = false;
+        addUserBtn.classList.add("active-btn");
+        showModal({
+          headerName: "Add User",
+          template: "src/templates/add-user.html",
+          onClose: function() {
+            addUserBtn.classList.remove("active-btn");
+          }
+        });
+      }
+
+      function onSelectPage(curPage) {
+        console.log(curPage);
+        sessionStorage.setItem("curPage", curPage);
+        if (curPage) {
+          const curIdx = (curPage - 1) * itemNumPerPage + 1;
+          axios
+            .get(
+              `${baseUrl}user/queryUserByCondition?userName=&firstName=&lastName=&pageSize=${itemNumPerPage}&currentPage=${curPage}`
+            )
+            .then(res => {
+              if (res.data.code === 0) {
+                const users = res.data.userList;
+                createUserTable(getCurrentData(users, curIdx));
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+        }
+      }
+
+      // operate user table
+      tableWrapper.addEventListener("click", function(e) {
+        const target = e.target;
+        const tableBody = findAncestor(target, "table-item");
+
+        if (tableBody) {
+          if (target.tagName === "A") {
+            const isEdit = target.classList.contains("edit");
+            const isDelete = target.classList.contains("delete");
+
+            // edit user
+            if (isEdit) {
+              const userItems = [
+                ...tableBody.querySelectorAll("div:not(.actions)")
+              ];
+              window.currentUserId = userItems.shift().textContent;
+              window.isEditUser = true;
+
+              showModal({
+                headerName: "Edit User",
+                template: "src/templates/add-user.html",
+                onOpen: function() {
+                  const userForm = document.querySelector(".add-user-form");
+                  let inputs = userForm.querySelectorAll(".modal input");
+                  let remarks = userForm.querySelector("textarea");
+                  const pwds = [...inputs].filter(
+                    item => item.type === "password"
+                  );
+
+                  // remove password fields
+                  [...pwds].forEach(pwd => {
+                    const parent = pwd.parentElement;
+                    userForm.removeChild(parent);
+                  });
+
+                  // update input fields
+                  inputs = userForm.querySelectorAll(".modal input");
+                  [...inputs].forEach((input, idx) => {
+                    const parent = input.parentElement;
+                    const label = input.previousElementSibling;
+
+                    label.classList.remove("big-label");
+                    label.classList.add("small-label");
+
+                    // disbale user name input field
+                    if (input.classList.contains("user-name")) {
+                      input.setAttribute("disabled", true);
+                      parent.style.backgroundColor = "#EAECE4";
+                    }
+                    input.value = userItems[idx].textContent;
+                  });
+
+                  const label = remarks.previousElementSibling;
+                  remarks.value = userItems[userItems.length - 1].textContent;
+                  label.classList.remove("big-label");
+                  label.classList.add("small-label");
+                }
+              });
+            } else if (isDelete) {
+              // delete user
+              showModal({
+                headerName: "Delete User",
+                template: "Are you sure to delete this user?",
+                onConfirm: function() {
+                  const userName = tableBody.querySelector(".username")
+                    .textContent;
+
+                  destoyModal();
+                  axios
+                    .delete(
+                      `${baseUrl}user/deleteUserInfo?userName=${userName}`
+                    )
+                    .then(res => {
+                      tableWrapper.removeChild(tableBody);
+
+                      userListData = userListData.filter(
+                        user => user.userName !== userName
+                      );
+
+                      updatePagination(--userDataSizes);
+                      showNotification("Delete successfully~");
+                    })
+                    .catch(err => {
+                      console.log(err);
+                    });
+                }
+              });
+            } else {
+              // change password
+              const modalHtml = `
+                    <div class="input-container">
+                      <span class="universal-label big-label normal-color"
+                        >Password</span
+                      >
+                      <input required class="form-input password" type="password" />
+                    </div>
+                  `;
+              showModal({
+                headerName: "Change Password",
+                template: modalHtml,
+                onConfirm: function() {
+                  tableWrapper.removeChild(tableBody);
+                  destoyModal();
+                },
+                onOpen: function() {
+                  handleInput();
+                }
+              });
+            }
+          }
+
+          // update user item styles
+          [...this.querySelectorAll(".table-item")].forEach(item => {
+            item.classList.remove("selected-user");
+          });
+          tableBody.classList.add("selected-user");
+        }
+
+        e.stopPropagation();
+      });
+    })();
+  </script>
+</template>

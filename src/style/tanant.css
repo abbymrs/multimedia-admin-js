@@ -1,0 +1,86 @@
+.search-container {
+  min-height: 68px;
+  background: #ededed;
+  display: flex;
+  flex-wrap: wrap;
+}
+.search-container > div {
+  margin-right: 10px;
+  margin-top: 14px;
+}
+.search-container .search-btn {
+  width: 40px;
+  height: 40px;
+}
+.search-container .search-btn button {
+  background: #f00;
+  outline: none;
+  border: none;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+.search-container .search-btn button span {
+  color: #fff;
+  font-size: 22px;
+}
+.operation-container {
+  height: 40px;
+  line-height: 40px;
+  background: #fff;
+  padding-left: 8px;
+}
+.operation-container button {
+  margin-right: 4px;
+  background: #bcbcbc;
+  border: none;
+  color: #fff;
+}
+.operation-container .active-btn {
+  background: #fa5154;
+}
+.operation-container span:first-child {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  background: #fa5154;
+  text-align: center;
+  margin-right: 4px;
+  line-height: 26px;
+}
+.operation-container span:first-child span {
+  color: #fff;
+}
+.table-container {
+  margin-top: 4px;
+}
+.table-container ul {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  margin-bottom: 4px;
+  background: #fff;
+  width: 100%;
+}
+.table-container ul li:first-child {
+  padding-left: 12px;
+}
+.table-container ul li:last-child {
+  padding-right: 12px;
+}
+.table-container ul.table-header {
+  height: 44px;
+  line-height: 44px;
+}
+.table-container ul.table-body:hover li {
+  background: #ffd5d7;
+}
+.table-container ul.table-body li {
+  color: #999;
+  padding: 10px 0;
+}
+.table-container ul.table-body li:first-child {
+  padding-left: 12px;
+}
+.table-container ul.table-body li > a {
+  cursor: pointer;
+}

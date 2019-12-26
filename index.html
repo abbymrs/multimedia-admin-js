@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="/" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>multi media admin</title>
+    <link href="./src/assets/font-awesome/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./src/style/index.css" />
+    <link rel="stylesheet" href="./src/style/login.css" />
+    <link rel="stylesheet" href="./src/style/tanant.css" />
+    <link rel="stylesheet" href="./src/style/form.css" />
+    <link rel="stylesheet" href="./src/style/user.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header-wrapper algin-between">
+        <div class="logo align-center">
+          <img src="./src/assets/images/42Q_logo.png" alt="42Q_logo" />
+          <span class="separator"></span>
+          <div class="logo-text">
+            <span class="multimedia-text">Multimedia</span>
+            <span class="platform-text">Platform</span>
+          </div>
+        </div>
+        <div class="user-section align-center">
+          <span>Multimedia-001</span>
+          <img src="./src/assets/images/avatar.jpg" alt="user profile image" />
+        </div>
+      </header>
+      <div class="content d-flex">
+        <nav id="side-menu" class="side-menu">
+          <div class="toggle-menu-btn align-center">
+            <i class="fas fa-bars fa-lg"></i>
+          </div>
+          <ul class="menu-list">
+            <li class="tanant" data-url="/tenant">
+              <img src="./src/assets/icons/home.svg" alt="" />
+              <span>Tenant</span>
+            </li>
+            <li class="user" data-url="/user">
+              <img src="./src/assets/icons/user.svg" alt="" />
+              <span>User</span>
+            </li>
+            <li class="multimedia" data-url="/multimedia">
+              <img src="./src/assets/icons/multimedia.svg" alt="" />
+              <span>Multimedia</span>
+            </li>
+          </ul>
+        </nav>
+        <div id="route-container" class="route-container">
+          <h3 class="page-title"></h3>
+          <div class="route-view"></div>
+        </div>
+      </div>
+      <footer>@2019 42Q. All rights reserved.</footer>
+    </div>
+    <app-spinner style="display: none;"></app-spinner>
+  </body>
+  <script>
+    window.baseUrl = "http://172.26.128.17:8888/";
+    window.itemNumPerPage = 10;
+    window.activeCalls = 0;
+    window.userListData = [];
+  </script>
+  <script src="./src/scripts/axios.min.js"></script>
+  <script src="./src/scripts/interceptors.js"></script>
+  <script src="./src/scripts/util.js"></script>
+  <script src="./src/scripts/form.js"></script>
+  <script src="./src/scripts/router.js"></script>
+  <script src="./src/scripts/index.js"></script>
+  <script src="./src/components/pagination/pagination.js"></script>
+  <script src="./src/mock/tanant-list.js"></script>
+  <script src="./src/mock/user-list.js"></script>
+  <script src="./src/components/input/input.js"></script>
+  <script src="./src/components/spinner/spinner.js"></script>
+  <script src="./src/components/search-group/search-group.js"></script>
+</html>
